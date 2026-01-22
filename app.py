@@ -1,42 +1,91 @@
-import sys
+import streamlit as st
+import pandas as pd
 import os
+import openai
+import json
 
-# Força o Python a reconhecer a pasta atual como raiz de módulos
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# --- 1. CONFIGURAÇÃO DE PÁGINA (ESTILO PREMIUM) ---
+st.set_page_config(page_title="AuraFit AI | Premium SaaS", layout="wide")
 
-import streamlit as st
-from ui.styles.theme import apply_theme
-from core.ai_engine.coach import AuraFitAI
+# --- 2. THEME ENGINE (UX/UI Designer) ---
+# Movemos o código do ui/styles/theme.py para cá
+st.markdown("""
+    <style>
+    .main { background-color: #0E1117; color: #FFFFFF; }
+    .stButton>button { 
+        background-color: #00D1FF; 
+        color: black; 
+        border-radius: 10px; 
+        font-weight: bold; 
+        width: 100%;
+        border: none;
+        padding: 0.5rem;
+    }
+    .stMetric { 
+        background-color: #161B22; 
+        border-radius: 10px; 
+        padding: 15px; 
+        border: 1px solid #30363D; 
+    }
+    h1, h2, h3 { color: #00D1FF !important; }
+    </style>
+    """, unsafe_allow_html=True)
 
-# ... resto do código igual
-import streamlit as st
-from ui.styles.theme import apply_theme
-from core.ai_engine.coach import AuraFitAI
+# --- 3. AI ENGINE (IA Specialist) ---
+# Movemos a lógica do core/ai_engine/coach.py para cá
+class AuraFitAI:
+    def __init__(self, api_key):
+        self.api_key = api_key
+    
+    def generate_plan(self, user_data):
+        if not self.api_key:
+            return "Erro: Chave de API não configurada nas variáveis do Railway."
+        # Simulação de resposta da IA para o MVP
+        return {
+            "treino": "Treino A: Foco em Hipertrofia (Supino, Agachamento, Remada)",
+            "dieta": "Dieta Hipercalórica: 2800kcal | 160g Proteína",
+            "insight": "Seu volume de treino aumentou 12% desde a última semana. Mantenha a constância!"
+        }
 
-st.set_page_config(page_title="AuraFit AI", layout="wide")
-apply_theme()
-
+# --- 4. INTERFACE PRINCIPAL (Product Manager) ---
 st.sidebar.title("🌌 AURAFIT AI")
-menu = st.sidebar.selectbox("Menu", ["Dashboard", "Treino IA", "Financeiro", "Comunidade", "Configurações"])
+st.sidebar.markdown("---")
+menu = st.sidebar.radio("Navegação", ["Dashboard", "Treino IA", "Nutrição", "Assinatura", "Admin"])
+
+# Inicializa a IA com a chave das variáveis de ambiente
+api_key = os.getenv("OPENAI_API_KEY")
+coach = AuraFitAI(api_key)
 
 if menu == "Dashboard":
-    st.title("Performance Dashboard")
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Streak Semanal", "5 Dias 🔥", "+1")
-    col2.metric("XP Total", "12,450", "Top 5%")
-    col3.metric("Plano Atual", "Premium Pro")
+    st.title("Performance Dashboard ⚡")
     
-    st.subheader("Seu Progresso de Força (IA Analysis)")
-    st.line_chart([10, 25, 40, 35, 50, 65])
+    col1, col2, col3, col4 = st.columns(4)
+    with col1: st.metric("Peso Atual", "82.5 kg", "-0.5 kg")
+    with col2: st.metric("Energia", "92%", "+5%")
+    with col3: st.metric("Streak", "15 Dias 🔥")
+    with col4: st.metric("XP Total", "2,850", "Top 3%")
+
+    st.subheader("Análise de Evolução (IA)")
+    chart_data = pd.DataFrame({'Força': [10, 25, 45, 60, 85], 'Resistência': [20, 30, 40, 55, 70]})
+    st.line_chart(chart_data)
 
 elif menu == "Treino IA":
     st.header("🦾 Personal Trainer Digital")
-    if st.button("Gerar Nova Rotina Semanal"):
-        st.info("A IA está calculando seu volume de treino ideal...")
-        st.success("Plano pronto! Verifique seu e-mail e o dashboard.")
+    st.write("A IA analisa seus dados em tempo real para ajustar sua carga.")
+    
+    if st.button("Gerar Plano Adaptativo"):
+        with st.spinner("IA calculando sua nova rotina..."):
+            resultado = coach.generate_plan({"peso": 82})
+            st.success("Plano Gerado com Sucesso!")
+            st.info(f"**Treino Sugerido:** {resultado['treino']}")
+            st.warning(f"**Ajuste de Dieta:** {resultado['dieta']}")
+            st.chat_message("assistant").write(resultado['insight'])
 
-elif menu == "Financeiro":
-    st.header("💳 Gestão de Assinatura")
-    st.write("Plano Pro: Ativo (Próxima cobrança: 15/10/2023)")
-    st.button("Upgrade para Corporate (B2B)")
+elif menu == "Assinatura":
+    st.header("💳 Gerencie seu Plano")
+    st.info("Você está no Plano **PREMIUM PRO**")
+    st.button("Fazer Upgrade para Corporate")
 
+# --- 5. RODAPÉ DE COMPLIANCE (Legal Specialist) ---
+st.sidebar.markdown("---")
+st.sidebar.caption("AuraFit AI v1.0.0 | LGPD Compliant")
