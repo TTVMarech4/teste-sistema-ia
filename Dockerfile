@@ -1,27 +1,25 @@
 FROM python:3.9-slim
 
-# Define o diretório de trabalho
+# Define o diretório de trabalho dentro do servidor
 WORKDIR /app
 
-# Instala dependências do sistema
+# Instala apenas o essencial para o Python compilar algumas bibliotecas
 RUN apt-get update && apt-get install -y \
     build-essential \
-    curl \
-    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia os arquivos de requisitos e instala
+# Copia os requisitos e instala as bibliotecas do Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia todo o projeto
+# Copia todo o resto do código do seu projeto
 COPY . .
 
-# VARIÁVEL CRUCIAL: Adiciona o diretório atual ao PATH do Python
+# AJUSTE DE CAMINHO: Isso resolve o erro anterior do "No module named ui"
 ENV PYTHONPATH=/app
 
-# Expondo a porta do Streamlit
+# Porta padrão do Streamlit
 EXPOSE 8501
 
-# Comando para rodar
+# Comando para iniciar o SaaS
 CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
