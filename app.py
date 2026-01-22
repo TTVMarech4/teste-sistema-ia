@@ -1,4 +1,14 @@
+import sys
+import os
 
+# Força o Python a reconhecer a pasta atual como raiz de módulos
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+import streamlit as st
+from ui.styles.theme import apply_theme
+from core.ai_engine.coach import AuraFitAI
+
+# ... resto do código igual
 import streamlit as st
 from ui.styles.theme import apply_theme
 from core.ai_engine.coach import AuraFitAI
@@ -29,3 +39,4 @@ elif menu == "Financeiro":
     st.header("💳 Gestão de Assinatura")
     st.write("Plano Pro: Ativo (Próxima cobrança: 15/10/2023)")
     st.button("Upgrade para Corporate (B2B)")
+
